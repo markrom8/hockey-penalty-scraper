@@ -63,9 +63,9 @@ all_big10_links = []
 for season in seasons:
     url = f"https://www.collegehockeynews.com/schedules/?season={season}"
     response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
     print(response.status_code, len(response.text))
     print([h.get_text(" ", strip=True) for h in soup.find_all("h2")][:3])
-    soup = BeautifulSoup(response.text, "html.parser")
 
     matches = pattern.findall(soup.prettify())
     full_links = ["https://www.collegehockeynews.com" + m for m in matches]
