@@ -33,14 +33,7 @@ Original file is located at
     https://colab.research.google.com/drive/1era5Xk_O7EfNOTwM8Z8oF2KyxVnR7wwK
 """
 
-seasons = [
-    "20212022",
-    "20222023",
-    "20232024",
-    "20242025",
-    "20252026",
-    "20262027"
-]
+seasons = ["20262027"]
 
 big10_teams = [
     "mic",
@@ -330,18 +323,17 @@ for url in urls:
             "Score at Penalty": penalty_scores[i]
         })
 
-df = pd.DataFrame(all_rows)
+df = pd.DataFrame(all_rows).drop_duplicates()
 
-# Open your sheet
 sheet = client.open("Hockey Penalties").sheet1
 
-# Prevent duplicates
-df = df.drop_duplicates()
+# Game IDs already in the sheet
+existing_ids = set(sheet.col_values(1)[1:])   # column A = Game ID, skip header
 
-# Clear old data
-sheet.clear()
+new_df = df[~df["Game ID"].isin(existing_ids)]
 
-# Upload new data
-sheet.update([df.columns.values.tolist()] + df.values.tolist())
-
-print("Google Sheet updated successfully!")
+if new_df.empty:
+    print("No new games to add.")
+else:
+    sheet.append_rows(new_df.astype(str).values.tolist(), value_input_option="RAW")
+    print(f"Added {len(new_df)} rows from {new_df['Game ID'].nunique()} games.")
