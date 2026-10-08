@@ -130,14 +130,17 @@ for url in urls:
     # ---------------------------
     # Teams & Date
     # ---------------------------
-    h2 = soup.find_all("h2")
-    team_text = h2[0].text.split("vs.")
+    h1 = soup.find("h1")
+    if h1 is None:
+        print("  skipping, no h1 found")
+        continue
 
-    away_team = team_text[0].strip()
-    home_team_and_date = team_text[1].rsplit("-", 1)
+    title = h1.get_text(" ", strip=True).replace("\xa0", " ")
+    away_team, rest = re.split(r"\s+vs\.?\s+", title, maxsplit=1, flags=re.I)
+    home_team, date_raw = re.split(r"\s+[-–—]\s+", rest, maxsplit=1)
 
-    home_team = home_team_and_date[0].replace('\xa0', ' ').strip()
-    date = home_team_and_date[1].strip()
+    away_team, home_team = away_team.strip(), home_team.strip()
+    date = date_raw.strip()
 
     game_id = f"{date}_{home_team}_{away_team}"
 
